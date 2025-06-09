@@ -16,4 +16,9 @@ class Scan extends Model
     {
         return $this->belongsTo(Plugin::class);
     }
+
+    public function vulnerabilities()
+    {
+        return $this->hasMany(Vulnerability::class);
+    }
 }
