@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\PluginController;
 
-Route::get('/', function () {
-    return view('welcome');
-});
+Route::get('/plugins', [PluginController::class, 'index']);
+Route::get('/plugins/{slug}', [PluginController::class, 'findBySlug']);
