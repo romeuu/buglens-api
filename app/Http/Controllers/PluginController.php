@@ -12,12 +12,19 @@ class PluginController extends Controller
         return Plugin::paginate(10)->toArray();
     }
 
-    public function findBySlug(string $slug): array
+    public function showBySlug(string $slug): array
     {
         return Plugin::where('slug', $slug)->first()->toArray();
     }
 
-    public function findById(int $id): array
+    public function showByPartialSlug(string $partialSlug): array
+    {
+        return Plugin::whereRaw('slug LIKE ?', ['%' . addcslashes($partialSlug, '%_') . '%'])
+            ->paginate(10)
+            ->toArray();
+    }
+
+    public function show(int $id): array
     {
         return Plugin::where('id', $id)->first()->toArray();
     }
