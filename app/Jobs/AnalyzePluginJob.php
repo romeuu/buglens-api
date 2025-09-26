@@ -48,6 +48,11 @@ class AnalyzePluginJob implements ShouldQueue
         $scan->result = $scan->vulnerabilities()->get()->toArray();
         $scan->save();
 
+        $plugin->update([
+            'last_analyzed_version' => $plugin->current_version,
+            'last_analyzed_at' => now()
+        ]);
+
         Log::info("Scan completed for plugin {$this->pluginSlug}", ['scan_id' => $scan->id]);
     }
 }

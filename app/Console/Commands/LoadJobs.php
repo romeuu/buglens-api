@@ -47,8 +47,12 @@ class LoadJobs extends Command
             return 1;
         }
 
-        $slugs = Plugin::pluck('slug');
-        $count = $slugs->count();
+        $plugins = Plugin::all();
+        $pluginsToAnalyze = $plugins->filter(function($plugin) {
+            return $plugin->needsAnalysis();
+        });
+
+        $count = $pluginsToAnalyze->count();
         $this->info("Found {$count} plugins to process");
         
         if ($count === 0) {
@@ -56,10 +60,10 @@ class LoadJobs extends Command
             return 1;
         }
 
-        foreach ($slugs as $slug) {
-            $this->info("Loading job for: {$slug}");
+        foreach ($pluginsToAnalyze as $plugin) {
+            $this->info("Loading job for: {$plugin->slug}");
             try {
-                $job = new AnalyzePluginJob($slug);
+                $job = new AnalyzePluginJob($plugin->slug);
                 $connection = 'redis';
                 $queue = 'default';
                 
@@ -67,9 +71,9 @@ class LoadJobs extends Command
                 
                 $queueKey = 'queues:' . $queue;
                 $queueLength = Redis::connection()->llen($queueKey);
-                $this->info("Job enqueued for {$slug} - Current queue length: {$queueLength}");
+                $this->info("Job enqueued for {$plugin->slug} - Current queue length: {$queueLength}");
             } catch (\Exception $e) {
-                $this->error("Error enqueuing job for {$slug}:");
+                $this->error("Error enqueuing job for {$plugin->slug}:");
                 $this->error($e->getMessage());
                 $this->error($e->getTraceAsString());
             }
